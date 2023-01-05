@@ -1,4 +1,4 @@
-# **TENACITY MOVE**
+# **Fitness Slack Bot**
 
 Web server for slack bot that posts fitness challenges daily on the slack channel. Bot is created as to be deployed onto AWS server using github workflows. 
 
