@@ -1,0 +1,50 @@
+CREATE_CHALLENGE_TABLE: >
+  CREATE TABLE IF NOT EXISTS public."challenge"
+  (
+    id serial NOT NULL,
+    description text NOT NULL,
+    modification text DEFAULT 'No modification required',
+    calories real,
+    place text,
+    url text,
+    is_used boolean DEFAULT False,
+    used_date date,
+    PRIMARY KEY (id)
+  );
+  ALTER TABLE IF EXISTS public."challenge"
+    OWNER to "tenacityMoveDb";
+
+GET_NEW_CHALLENGE: >
+  SELECT * FROM public.challenge
+  WHERE is_used = false
+  LIMIT 1;
+
+MARK_CHALLENGE_DONE: >
+  UPDATE public.challenge
+  SET is_used = true,
+  used_date = CURRENT_DATE
+  WHERE id = %s;
+
+CREATE_CHALLENGE_COMPLETED_LOGS_TABLE: >
+  CREATE TABLE IF NOT EXISTS public.challenge_completed_logs
+  (
+      id serial NOT NULL,
+      user_id text NOT NULL,
+      channel_id text NOT NULL,
+      completed boolean NOT NULL DEFAULT true,
+      date date DEFAULT CURRENT_DATE,
+      "time" time without time zone DEFAULT CURRENT_TIME,
+      PRIMARY KEY (id)
+  );
+  ALTER TABLE IF EXISTS public.challenge_completed_logs
+      OWNER to "tenacityMoveDb";
+
+INSERT_CHALLENGE_LOG: >
+  INSERT INTO public.challenge_completed_logs
+    (user_id, channel_id)
+  SELECT '%s', '%s'
+  WHERE
+    NOT EXISTS (
+        SELECT user_id FROM public.challenge_completed_logs
+        WHERE user_id = '%s' AND channel_id = '%s' AND date = CURRENT_DATE
+    );
